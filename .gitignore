@@ -1,0 +1,36 @@
+# Claude Code generated files
+.claude/
+.claude_code/
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Binaries
+bin/
+dist/
+
+# Node modules (if using any JS tooling)
+node_modules/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Reports and temporary files
+Reports/
+*.log
+*.tmp
