@@ -11,13 +11,22 @@
 *.test
 *.out
 go.work
+backend/go.sum
 
 # Binaries
 bin/
 dist/
 
-# Node modules (if using any JS tooling)
+# Node modules
 node_modules/
+frontend/node_modules/
+
+# Frontend build
+frontend/dist/
+
+# Database and data files
+data/
+*.db
 
 # IDE and editor files
 .vscode/
@@ -29,8 +38,33 @@ node_modules/
 # OS files
 .DS_Store
 Thumbs.db
+.AppleDouble
+.LSOverride
 
 # Reports and temporary files
 Reports/
 *.log
 *.tmp
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Package manager lock files (uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Electron build artifacts
+electron/dist/
+electron-builder.yml
+
+# Coverage and test results
+coverage/
+*.cover
+*.test
+
+# Config files (if sensitive)
+# config.yaml
+# config.yml

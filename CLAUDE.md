@@ -171,8 +171,8 @@ require (
     github.com/mattn/go-sqlite3 v1.14.18
     github.com/jmoiron/sqlx v1.3.5
 
-    // EPUB parser
-    github.com/taylorskalyo/goreader v0.0.0-20230626095242-3b9c48f0e8e4
+    // EPUB parser - using standard library (archive/zip, encoding/xml)
+    // No external dependency needed
 
     // Web scraping
     github.com/PuerkitoBio/goquery v1.8.1

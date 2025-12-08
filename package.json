@@ -1,0 +1,55 @@
+{
+  "name": "go-reader",
+  "version": "1.0.0",
+  "description": "A cross-platform desktop novel reader application",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "export PATH=$PATH:/usr/local/go/bin && cd backend && go run cmd/server/main.go",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && go build -o ../bin/go-reader-server cmd/server/main.go",
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.goreader.app",
+    "productName": "Go Reader",
+    "directories": {
+      "output": "dist",
+      "buildResources": "electron/resources"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "bin/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/",
+        "to": "bin/",
+        "filter": ["**/*"]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Office"
+    }
+  },
+  "dependencies": {
+    "electron": "^32.1.2"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.0.5",
+    "concurrently": "^9.0.1",
+    "wait-on": "^8.0.1"
+  }
+}
