@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/whitecat/go-reader/internal/models"
 	"github.com/whitecat/go-reader/internal/repository"
 	"github.com/whitecat/go-reader/internal/scraper"
@@ -244,15 +246,43 @@ func (s *CrawlerService) downloadCover(coverURL string) string {
 	if coverURL == "" {
 		return ""
 	}
-	resp, err := http.Get(coverURL)
-	if err != nil || resp.StatusCode != http.StatusOK {
+
+	fallback := func() string {
+		if u, err := url.Parse(coverURL); err == nil && u.Scheme != "" {
+			return coverURL
+		}
 		return ""
+	}
+
+	req, err := http.NewRequest(http.MethodGet, coverURL, nil)
+	if err != nil {
+		logrus.Warnf("cover: build request failed: %v", err)
+		return fallback()
+	}
+	// Some hosts block default Go UA; mimic browser and set referer to bypass hotlink limits.
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36")
+	ref := "https://www.biquge321.com/"
+	if u, err := url.Parse(coverURL); err == nil && u.Scheme != "" && u.Host != "" {
+		ref = u.Scheme + "://" + u.Host + "/"
+	}
+	req.Header.Set("Referer", ref)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		if err != nil {
+			logrus.Warnf("cover: request failed url=%s err=%v", coverURL, err)
+		} else {
+			logrus.Warnf("cover: non-200 status url=%s status=%d", coverURL, resp.StatusCode)
+		}
+		return fallback()
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil || len(data) == 0 {
-		return ""
+		logrus.Warnf("cover: read body failed url=%s err=%v len=%d", coverURL, err, len(data))
+		return fallback()
 	}
 
 	ext := ".jpg"
@@ -268,11 +298,14 @@ func (s *CrawlerService) downloadCover(coverURL string) string {
 		s.coversDir = "./data/covers"
 	}
 	if err := os.MkdirAll(s.coversDir, 0755); err != nil {
-		return ""
+		logrus.Warnf("cover: mkdir failed dir=%s err=%v", s.coversDir, err)
+		return fallback()
 	}
 	path := filepath.Join(s.coversDir, filename)
 	if err := os.WriteFile(path, data, 0644); err != nil {
-		return ""
+		logrus.Warnf("cover: write failed path=%s err=%v", path, err)
+		return fallback()
 	}
+	logrus.Infof("cover: saved url=%s to %s", coverURL, path)
 	return "/covers/" + filename
 }
