@@ -321,23 +321,25 @@ func extractHTMLTitle(content string) string {
 		if start == -1 {
 			return ""
 		}
-		end := strings.Index(lower[start+len(open):], close)
+		// Find the closing bracket of the opening tag
+		tagEnd := strings.Index(lower[start:], ">")
+		if tagEnd == -1 {
+			return ""
+		}
+		
+		realStart := start + tagEnd + 1
+
+		end := strings.Index(lower[realStart:], close)
 		if end == -1 {
 			return ""
 		}
-		return strings.TrimSpace(stripHTMLTags(content[start+len(open) : start+len(open)+end]))
+		return strings.TrimSpace(stripHTMLTags(content[realStart : realStart+end]))
 	}
+
 	if t := findBetween("<title", "</title>"); t != "" {
-		// remove any attributes from <title ...>
-		if idx := strings.Index(t, ">"); idx != -1 && idx < len(t)-1 {
-			return strings.TrimSpace(t[idx+1:])
-		}
 		return t
 	}
 	if h := findBetween("<h1", "</h1>"); h != "" {
-		if idx := strings.Index(h, ">"); idx != -1 && idx < len(h)-1 {
-			return strings.TrimSpace(h[idx+1:])
-		}
 		return h
 	}
 	return ""
