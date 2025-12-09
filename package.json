@@ -2,6 +2,7 @@
   "name": "go-reader",
   "version": "1.0.0",
   "description": "A cross-platform desktop novel reader application",
+  "author": "Your Name <your.email@example.com>",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"wait-on http://localhost:5173 && electron .\"",
@@ -11,7 +12,8 @@
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && go build -o ../bin/go-reader-server cmd/server/main.go",
     "electron:dev": "electron .",
-    "electron:build": "electron-builder"
+    "electron:build": "electron-builder",
+    "stop": "echo '嘗試停止 Go-Reader 相關服務...' && lsof -t -i:8080 | xargs kill -9 || true && lsof -t -i:5173 | xargs kill -9 || true && pkill -f \"electron .\" || true && echo '停止指令已發送。請檢查服務是否已完全停止。'"
   },
   "build": {
     "appId": "com.goreader.app",
@@ -22,13 +24,17 @@
     },
     "files": [
       "electron/**/*",
-      "frontend/dist/**/*",
-      "bin/**/*"
+      "frontend/dist/**/*"
     ],
     "extraResources": [
       {
         "from": "bin/",
         "to": "bin/",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "backend/migrations",
+        "to": "migrations",
         "filter": ["**/*"]
       }
     ],
@@ -44,10 +50,9 @@
       "category": "Office"
     }
   },
-  "dependencies": {
-    "electron": "^32.1.2"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "electron": "^32.1.2",
     "electron-builder": "^25.0.5",
     "concurrently": "^9.0.1",
     "wait-on": "^8.0.1"

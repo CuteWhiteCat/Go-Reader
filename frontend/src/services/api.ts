@@ -1,8 +1,12 @@
 import axios from 'axios'
 import type { ApiResponse } from '../types'
 
+// In production, the frontend is served from file://, so we need the full URL.
+// In development, we use a relative path to utilize the Vite proxy.
+const isProduction = import.meta.env.PROD
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: isProduction ? 'http://localhost:8080/api' : '/api',
   headers: {
     'Content-Type': 'application/json',
   },

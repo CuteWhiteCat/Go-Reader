@@ -51,6 +51,12 @@ func Load() (*Config, error) {
 	viper.SetEnvPrefix("GOREADER")
 	viper.AutomaticEnv()
 
+	// Explicitly bind environment variables to be safe
+	viper.BindEnv("server.port", "GOREADER_SERVER_PORT")
+	viper.BindEnv("database.path", "GOREADER_DATABASE_PATH")
+	viper.BindEnv("storage.books_dir", "GOREADER_STORAGE_BOOKS_DIR")
+	viper.BindEnv("storage.covers_dir", "GOREADER_STORAGE_COVERS_DIR")
+
 	// Read config file (ignore error if file doesn't exist)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
