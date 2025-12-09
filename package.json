@@ -5,9 +5,13 @@
   "author": "Your Name <your.email@example.com>",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev": "npm-run-all -p dev:frontend dev:backend electron:dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "export PATH=$PATH:/usr/local/go/bin && cd backend && go run cmd/server/main.go",
+    "dev:backend": "per-env",
+    "dev:backend:win32": "cd backend && go run cmd/server/main.go",
+    "dev:backend:linux": "export PATH=$PATH:/usr/local/go/bin && cd backend && go run cmd/server/main.go",
+    "dev:backend:darwin": "export PATH=$PATH:/usr/local/go/bin && cd backend && go run cmd/server/main.go",
+    "electron:dev": "wait-on http://localhost:5173 && electron .",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && go build -o ../bin/go-reader-server cmd/server/main.go",
@@ -30,31 +34,46 @@
       {
         "from": "bin/",
         "to": "bin/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "backend/migrations",
         "to": "migrations",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
       "category": "public.app-category.productivity",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Office"
     }
   },
-  "dependencies": {},
   "devDependencies": {
+    "concurrently": "^9.0.1",
+    "cross-env": "^10.1.0",
     "electron": "^32.1.2",
     "electron-builder": "^25.0.5",
-    "concurrently": "^9.0.1",
+    "npm-run-all": "^4.1.5",
+    "per-env": "^1.0.2",
     "wait-on": "^8.0.1"
   }
 }
