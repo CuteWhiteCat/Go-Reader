@@ -83,11 +83,26 @@ class BackendManager {
       })
     } else {
       // Production mode: run compiled binary
+      const userDataPath = app.getPath('userData')
+      const envForBackend = {
+        ...process.env,
+        GOREADER_SERVER_PORT: this.port.toString(),
+        GOREADER_DATABASE_PATH: path.join(userDataPath, 'database.db'),
+        GOREADER_STORAGE_BOOKS_DIR: path.join(userDataPath, 'books'),
+        GOREADER_STORAGE_COVERS_DIR: path.join(userDataPath, 'covers'),
+      }
+
+      console.log('--- GO-READER DEBUG INFO ---')
+      console.log('Running in production mode:', app.isPackaged)
+      console.log('Backend executable path:', backendPath)
+      console.log('Backend working directory (cwd):', process.resourcesPath)
+      console.log('User data path for backend:', userDataPath)
+      console.log('Final ENV for backend:', JSON.stringify(envForBackend, null, 2))
+      console.log('--- END GO-READER DEBUG INFO ---')
+
       this.process = spawn(backendPath, [], {
-        env: {
-          ...process.env,
-          GOREADER_SERVER_PORT: this.port.toString(),
-        },
+        cwd: process.resourcesPath,
+        env: envForBackend,
       })
     }
 
@@ -213,6 +228,7 @@ function createWindow() {
     mainWindow.webContents.openDevTools()
   } else {
     mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'))
+    mainWindow.webContents.openDevTools()
   }
 
   mainWindow.on('closed', () => {

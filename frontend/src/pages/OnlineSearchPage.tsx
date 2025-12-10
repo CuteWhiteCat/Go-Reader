@@ -16,7 +16,7 @@ export default function OnlineSearchPage() {
   const [downloadProgress, setDownloadProgress] = useState<Map<string, number>>(new Map())
   const [searchError, setSearchError] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
-  const [jobIds, setJobIds] = useState<Map<string, string>>(new Map())
+
 
   const totalPages = Math.ceil(results.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -91,11 +91,7 @@ export default function OnlineSearchPage() {
         latest: novel.latest,
         url: novel.url,
       })
-      setJobIds(prev => {
-        const next = new Map(prev)
-        if (jobId) next.set(itemKey, jobId)
-        return next
-      })
+
 
       const intervalId = window.setInterval(async () => {
         const currentJobId = jobId
